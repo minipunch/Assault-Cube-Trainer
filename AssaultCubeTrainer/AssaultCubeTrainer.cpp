@@ -5,38 +5,18 @@
 #include <vector>
 #include <Windows.h>
 #include "proc.h"
+#include "mem.h"
 
-
-int main()
-{
-
-	int AMMO_PTR_BASE_ADDR = 0x10F4F4;
-
-	// Get process ID
-	DWORD procId = GetProcId(L"ac_client.exe");
-
-	// Get module base address
-	uintptr_t moduleBase = GetModuleBaseAddress(procId, L"ac_client.exe");
-
-	// Get process handle
-	HANDLE hProcess = 0;
-	hProcess = OpenProcess(PROCESS_ALL_ACCESS, NULL, procId);
-
-	/* MODIFYING AMMO */
-	// Resolve base address of ammo pointer chain
-	uintptr_t dynamicPtrBaseAddr = moduleBase + AMMO_PTR_BASE_ADDR;
-
-	std::cout << "Ammo ptr addr: 0x" << std::hex << dynamicPtrBaseAddr << std::endl;
+void setAmmo(HANDLE hProcess, uintptr_t playerPtr, int newAmmo) {
+	std::cout << "Player ptr addr: 0x" << std::hex << playerPtr << std::endl;
 
 	// Resolve ammo pointer chain
 	std::vector<unsigned int> ammoOffsets = { 0x374, 0x14, 0x0 }; // found offsets manually using CE
-	uintptr_t ammoAddr = FindDMAAddy(hProcess, dynamicPtrBaseAddr, ammoOffsets);
+	uintptr_t ammoAddr = FindDMAAddy(hProcess, playerPtr, ammoOffsets);
 
 	std::cout << "Ammo addr: 0x" << std::hex << ammoAddr << std::endl;
 
-	//TESTING:
-
-	// Read it
+	// Read it (to test)
 	int ammoVal = 0;
 
 	ReadProcessMemory(hProcess, (BYTE*)ammoAddr, &ammoVal, sizeof(ammoVal), nullptr);
@@ -44,16 +24,65 @@ int main()
 	std::cout << "Found ammo value!! It should be: " << std::dec << ammoVal << std::endl;
 
 	// Write to it
-	int newAmmo = 1337;
-	
 	WriteProcessMemory(hProcess, (BYTE*)ammoAddr, &newAmmo, sizeof(newAmmo), nullptr);
 
-	// Read it
+	// Read it (to test)
 	ReadProcessMemory(hProcess, (BYTE*)ammoAddr, &ammoVal, sizeof(ammoVal), nullptr);
 
 	std::cout << "After modification, ammo should now be: " << std::dec << ammoVal << std::endl;
+}
+
+void enableGodMode(uintptr_t healthAddr, HANDLE hProcess) { // seems to update HUD, does it actually work tho?
+	const int hp = 1337;
+	mem::PatchEx((BYTE*)healthAddr, (BYTE*)&hp, sizeof(hp), hProcess);
+}
+
+int main()
+{
+	HANDLE hProcess = 0;
+
+	uintptr_t moduleBase = 0, localPlayerPtr = 0, healthAddr = 0;
+	bool bHealth = false, bAmmo = false, bRecoil = false;
+
+	DWORD procId = GetProcId(L"ac_client.exe");
+
+	if (procId) {
+		int PLAYER_PTR_BASE_ADDR = 0x10F4F4;
+		hProcess = OpenProcess(PROCESS_ALL_ACCESS, NULL, procId);
+		moduleBase = GetModuleBaseAddress(procId, L"ac_client.exe");
+		localPlayerPtr = moduleBase + PLAYER_PTR_BASE_ADDR;
+		healthAddr = FindDMAAddy(hProcess, localPlayerPtr, { 0xf8 });
+	}
+	else {
+		std::cout << "Process not found, press enter to exit\n";
+		getchar();
+		return 0;
+	}
+
+	DWORD dwExit = 0;
+
+	while (GetExitCodeProcess(hProcess, &dwExit) && dwExit == STILL_ACTIVE) {
+		// activate god mode
+		if (GetAsyncKeyState(VK_NUMPAD1) & 1) {
+			bHealth = !bHealth;
+		}
+		else if (GetAsyncKeyState(VK_NUMPAD2) & 1) {
+			// set ammo
+			setAmmo(hProcess, localPlayerPtr, 1337);
+		} else if (GetAsyncKeyState(VK_NUMPAD3) & 1) {
+			// no recoil
+			mem::NopEx((BYTE*)(moduleBase + 0x63786), 10, hProcess);
+		}
+
+		// god mode loop (apparently doesn't work on multiplayer sessions)
+		if (bHealth) {
+			enableGodMode(healthAddr, hProcess);
+		}
+		Sleep(10);
+	}
+
+	std::cout << "Process not found, press enter to exit\n";
 
 	getchar();
-
     return 0;
 }

@@ -16,6 +16,9 @@
     <Filter Include="proc">
       <UniqueIdentifier>{edc52b3c-9ba8-477f-a563-3eec9a272090}</UniqueIdentifier>
     </Filter>
+    <Filter Include="mem">
+      <UniqueIdentifier>{1bccafe5-c5f5-4208-9bb9-889b0f023d77}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -30,6 +33,9 @@
     <ClInclude Include="proc.h">
       <Filter>proc</Filter>
     </ClInclude>
+    <ClInclude Include="mem.h">
+      <Filter>mem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -40,6 +46,9 @@
     </ClCompile>
     <ClCompile Include="proc.cpp">
       <Filter>proc</Filter>
+    </ClCompile>
+    <ClCompile Include="mem.cpp">
+      <Filter>mem</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

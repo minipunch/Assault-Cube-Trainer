@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "proc.h"
 
+// Get the ID of process given it's name as a Lstr
 DWORD GetProcId(const wchar_t* procName) {
 	DWORD procId = 0;
 	HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -21,6 +22,7 @@ DWORD GetProcId(const wchar_t* procName) {
 	return procId;
 }
 
+// Get the base address in memory of the module
 uintptr_t GetModuleBaseAddress(DWORD procId, const wchar_t* modName) {
 	uintptr_t modBaseAddr = 0;
 	HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, procId);
@@ -40,6 +42,7 @@ uintptr_t GetModuleBaseAddress(DWORD procId, const wchar_t* modName) {
 	return modBaseAddr;
 }
 
+// Find the dynamic memory address of the process
 uintptr_t FindDMAAddy(HANDLE hProc, uintptr_t ptr, std::vector<unsigned int> offsets) {
 	uintptr_t addr = ptr;
 	for (unsigned int i = 0; i < offsets.size(); i++) {
