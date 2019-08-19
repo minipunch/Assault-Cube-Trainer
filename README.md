@@ -11,4 +11,4 @@ Open Assault Cube, open the Assault Cube Trainer executable, then use the follow
 - NUMPAD3 = no recoil
 
 #### Ammo Hack Demonstration
-![Ammo Hack Demonstration](https://im5.ezgif.com/tmp/ezgif-5-d1010b2d6f23.gif "Ammo Hack Demonstration")
+![Ammo Hack Demonstration](https://imgur.com/cuiCJmU.gif "Ammo Hack Demonstration")
