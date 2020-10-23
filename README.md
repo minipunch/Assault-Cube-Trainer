@@ -14,3 +14,5 @@ Open Assault Cube, open the Assault Cube Trainer executable, then use the follow
 ![Ammo Hack Demonstration](https://imgur.com/cuiCJmU.gif "Ammo Hack Demonstration")
 
 You can see in the above GIF the ammo count goes from ``20`` to ``1337`` when ``NUM2`` is pressed.
+
+This is based on the great Guided Hacking tutorial available on their website and/or YouTube: https://guidedhacking.com/.
